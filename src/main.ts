@@ -3,6 +3,7 @@ import App from './App.vue'
 import PrimeVue from "primevue/config";
 import Toolbar from "primevue/toolbar";
 import Button from "primevue/button";
+import Dropdown from "primevue/dropdown";
 import Panel from "primevue/panel";
 import Textarea from "primevue/textarea";
 import Avatar from "primevue/avatar";
@@ -20,6 +21,7 @@ app.component("Toolbar", Toolbar);
 app.component("Button", Button);
 app.component("Panel", Panel);
 app.component("Textarea", Textarea);
+app.component("Dropdown", Dropdown);
 app.component("Avatar", Avatar);
 app.component("AvatarGroup", AvatarGroup);
 

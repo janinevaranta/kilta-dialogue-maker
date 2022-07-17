@@ -19,9 +19,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="dialogue-message" ref="messageElement">
-    <Avatar class="dialogue-avatar" size="large" :class="props.position"  shape="circle" />
-    <Panel :header="props.author" class="dialogue-panel" :class="props.position">
+  <div class="dialogue-message" :class="props.position" ref="messageElement">
+    <Avatar class="dialogue-avatar" :class="props.position" size="large" shape="circle" />
+    <Panel :header="props.author" class="dialogue-panel">
       <p>
         {{ props.content }}
       </p>
@@ -33,13 +33,23 @@ onMounted(() => {
 .dialogue-message {
   display: block;
   position: relative;
-  justify-content: center;
+  max-width: 630px;
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.dialogue-pos-left.dialogue-message{
+  margin-left: 50px;
+}
+.dialogue-pos-right.dialogue-message {
+  margin-right: 50px;
 }
 .dialogue-avatar {
   position: absolute;
   top: 0;
 }
 .dialogue-panel {
+  position: relative;
   width: 100%;
   max-width: 630px;
   margin: 20px auto 20px auto;
@@ -50,16 +60,10 @@ onMounted(() => {
   text-align: left;
   overflow-wrap: break-word;
 }
-.dialogue-pos-left.dialogue-panel {
-  left: 5%;
-}
-.dialogue-pos-right.dialogue-panel {
-  right: 5%;
-}
 .dialogue-pos-left.dialogue-avatar {
-  left: 0px;
+  left: -50px;
 }
 .dialogue-pos-right.dialogue-avatar {
-  right: 0px;
+  right: -50px;
 }
 </style>

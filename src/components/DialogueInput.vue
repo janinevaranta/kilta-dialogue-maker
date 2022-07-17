@@ -1,15 +1,23 @@
 <script setup lang="ts">
-import { ref, watch, defineEmits } from "vue";
+import { ref, reactive, watch, defineEmits } from "vue";
 
 const dialogueAuthor = ref("Emericus");
 const dialogueInput = ref("");
+
+const dialogueOptionsSelected = reactive({
+  selectedPosition: "left",
+})
+const dialogueOptionsPosition = ref([
+  "left",
+  "right"
+]);
 
 const emit = defineEmits<{
   (e: "createMessage", opts: {author: string, content: string, position: string}): void
 }>();
 
 function createMessage() {
-  emit("createMessage", {author: dialogueAuthor.value, content: dialogueInput.value, position: "dialogue-pos-left"})
+  emit("createMessage", {author: dialogueAuthor.value, content: dialogueInput.value, position: `dialogue-pos-${dialogueOptionsSelected.selectedPosition}`})
   dialogueInput.value = "";
 }
 </script>
@@ -17,7 +25,14 @@ function createMessage() {
 <template>
   <div class="dialogue-input-content">
     <Avatar class="dialogue-input-avatar" size="xlarge" shape="circle" />
-    <Textarea class="dialogue-input-textarea" v-model="dialogueInput" :autoResize="true" rows="5" cols="80" />
+    <div class="dialogue-input-edit">
+      <Toolbar class="dialogue-input-toolbar">
+        <template #start>
+          <Dropdown id="dialogue-position-selector" v-model="dialogueOptionsSelected.selectedPosition" :options="dialogueOptionsPosition"></Dropdown>
+        </template>
+      </Toolbar>
+      <Textarea class="dialogue-input-textarea" v-model="dialogueInput" :autoResize="true" rows="4" cols="80" />
+    </div>
     <Button class="dialogue-input-submit p-button-rounded" @click="createMessage">Submit</Button>
   </div>
 </template>
@@ -36,5 +51,7 @@ function createMessage() {
 
 }
 .dialogue-input-submit {
+  height: 50%;
+  align-self: center;
 }
 </style>
