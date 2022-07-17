@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps } from "vue";
+import { ref, defineProps, onMounted } from "vue";
 
 const props = defineProps<{
   position: string,
@@ -7,12 +7,21 @@ const props = defineProps<{
   author: string,
 }>();
 
+// Make a reference to the DOM, so that we can scroll into the new element once its
+// been mounted.
+const messageElement = ref<null | HTMLDivElement>(null);
+
+onMounted(() => {
+  if (messageElement.value != null) {
+    messageElement.value.scrollIntoView({behavior: "smooth"});
+  }
+});
 </script>
 
 <template>
-  <div class="dialogue-message">
+  <div class="dialogue-message" ref="messageElement">
+    <Avatar class="dialogue-avatar" size="large" :class="props.position"  shape="circle" />
     <Panel :header="props.author" class="dialogue-panel" :class="props.position">
-      <Avatar class="dialogue-avatar" size="large" :class="props.position"  shape="circle" />
       <p>
         {{ props.content }}
       </p>
@@ -34,12 +43,12 @@ const props = defineProps<{
   width: 100%;
   max-width: 630px;
   margin: 20px auto 20px auto;
-  position: relative;
 }
 .p-panel p {
   line-height: 1.5;
   margin: 0;
   text-align: left;
+  overflow-wrap: break-word;
 }
 .dialogue-pos-left.dialogue-panel {
   left: 5%;
@@ -48,9 +57,9 @@ const props = defineProps<{
   right: 5%;
 }
 .dialogue-pos-left.dialogue-avatar {
-  right: -60px;
+  left: 0px;
 }
 .dialogue-pos-right.dialogue-avatar {
-  left: -60px;
+  right: 0px;
 }
 </style>
