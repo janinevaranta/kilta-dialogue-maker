@@ -72,11 +72,4 @@ function createMessage(opts: MessageOptions) {
 #dialogue-content::-webkit-scrollbar {
   display: none;
 }
-#dialogue-input {
-  margin-left: auto;
-  margin-right: auto;
-  bottom: 0;
-  z-index: 9999;
-  position: fixed;
-}
 </style>

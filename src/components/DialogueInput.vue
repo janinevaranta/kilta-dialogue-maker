@@ -27,6 +27,7 @@ function createMessage() {
   display: flex;
   justify-content: center;
   gap: 15px;
+  z-index: 1;
 }
 .dialogue-input-textarea {
 
