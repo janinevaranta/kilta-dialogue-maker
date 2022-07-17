@@ -12,16 +12,17 @@ enum DialoguePosition {
 }
 
 interface MessageOptions {
+  index?: number,
   author: string,
   content: string,
   position: string,
+  effect?: string,
 }
 
 const dialogueMessages: Ref<MessageOptions[]> = ref([]);
 
 function createMessage(opts: MessageOptions) {
   dialogueMessages.value.push(opts)
-  console.log(dialogueMessages.value);
 }
 </script>
 
@@ -32,9 +33,11 @@ function createMessage(opts: MessageOptions) {
       <div id="dialogue-content">
         <DialogueMessage 
           v-for="(message, index) in dialogueMessages" 
+          :index="index"
           :position="dialogueMessages[index].position" 
           :author="dialogueMessages[index].author"
           :content="dialogueMessages[index].content"
+          :effect="dialogueMessages[index].effect"
         />
       </div>
       <DialogueInput class="dialogue-input" @create-message="createMessage" />
