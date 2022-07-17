@@ -1,11 +1,43 @@
 <script setup lang="ts">
-import { ref, defineProps, onMounted } from "vue";
+import { ref, defineProps, defineEmits, onMounted, Ref } from "vue";
+import { useConfirm } from "primevue/useconfirm";
 
 const props = defineProps<{
+  index: number,
   position: string,
   content: string,
   author: string,
+  effect?: string,
 }>();
+
+const emit = defineEmits<{
+  (e: "deleteMessage", opts: {index: number}): void
+}>()
+
+const confirm = useConfirm();
+
+const messageOptionsElement = ref<null | Ref>(null);
+const messageOptions = ref([
+  {
+    label: "Options",
+    items: [
+      {
+        label: "Edit",
+        icon: "pi pi-pencil",
+        command: () => {
+          console.log("Testi")
+        },
+      },
+      {
+        label: "Delete",
+        icon: "pi pi-times",
+        command: () => {
+          confirmDelete()
+        },
+      }
+    ]
+  }
+])
 
 // Make a reference to the DOM, so that we can scroll into the new element once its
 // been mounted.
@@ -16,12 +48,44 @@ onMounted(() => {
     messageElement.value.scrollIntoView({behavior: "smooth"});
   }
 });
+
+function toggleOptions(event: Event) {
+  messageOptionsElement.value?.toggle(event);
+}
+
+function confirmDelete() {
+  confirm.require({
+    message: "Are you sure you want to delete the entry?",
+    header: "Delete Confirmation",
+    icon: "pi pi-info-circle",
+    acceptClass: "p-button-dange",
+    accept: () => {
+      emit("deleteMessage", { index: props.index });
+    },
+    reject: () => {
+      console.log("Rejected");
+    }
+  })
+};
+
 </script>
 
 <template>
   <div class="dialogue-message" :class="props.position" ref="messageElement">
-    <Avatar class="dialogue-avatar" :class="props.position" size="large" shape="circle" />
-    <Panel :header="props.author" class="dialogue-panel">
+    <Avatar class="dialogue-message-avatar" :class="props.position" size="large" shape="circle" />
+    <Panel class="dialogue-message-panel">
+      <template #header>
+        <span >
+          <p class="dialogue-message-panel-header-content">{{ props.author }}</p>
+          <i v-show="props.effect != 'nothing'" class="dialogue-message-panel-header-content dialogue-message-effect">{{ props.effect }}</i>
+        </span>
+      </template>
+      <template #icons>
+        <button class="p-panel-header-icon p-link mr-2" @click="toggleOptions">
+          <span class="pi pi-cog"></span>
+        </button>
+        <Menu id="config_menu" class="dialogue-message-options" ref="messageOptionsElement" :model="messageOptions" :popup="true"  />
+      </template>
       <p>
         {{ props.content }}
       </p>
@@ -44,15 +108,22 @@ onMounted(() => {
 .dialogue-pos-right.dialogue-message {
   margin-right: 50px;
 }
-.dialogue-avatar {
+.dialogue-message-avatar {
   position: absolute;
   top: 0;
 }
-.dialogue-panel {
+.dialogue-message-panel {
   position: relative;
   width: 100%;
   max-width: 630px;
   margin: 20px auto 20px auto;
+}
+.dialogue-message-panel-header-content {
+  display: inline-block;
+  margin-left: 10px;
+}
+.dialogue-message-effect {
+  font-size: 0.8em;
 }
 .p-panel p {
   line-height: 1.5;
@@ -60,10 +131,13 @@ onMounted(() => {
   text-align: left;
   overflow-wrap: break-word;
 }
-.dialogue-pos-left.dialogue-avatar {
+.dialogue-pos-left.dialogue-message-avatar {
   left: -50px;
 }
-.dialogue-pos-right.dialogue-avatar {
+.dialogue-pos-right.dialogue-message-avatar {
   right: -50px;
+}
+.dialogue-message-options {
+
 }
 </style>
