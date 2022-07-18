@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Dialogue from "./views/Dialogue.vue";
 
 </script>
 
 <template>
-  <Dialogue />
+  <ConfirmDialog></ConfirmDialog>
+  <RouterView></RouterView>
 </template>
 
 <style>

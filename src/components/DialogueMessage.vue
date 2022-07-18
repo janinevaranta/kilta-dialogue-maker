@@ -53,44 +53,46 @@ function toggleOptions(event: Event) {
   messageOptionsElement.value?.toggle(event);
 }
 
-function confirmDelete() {
+const confirmDelete = () => {
   confirm.require({
     message: "Are you sure you want to delete the entry?",
     header: "Delete Confirmation",
     icon: "pi pi-info-circle",
-    acceptClass: "p-button-dange",
+    acceptClass: "p-button-danger",
     accept: () => {
       emit("deleteMessage", { index: props.index });
     },
     reject: () => {
       console.log("Rejected");
     }
-  })
+  });
 };
 
 </script>
 
 <template>
-  <div class="dialogue-message" :class="props.position" ref="messageElement">
-    <Avatar class="dialogue-message-avatar" :class="props.position" size="large" shape="circle" />
-    <Panel class="dialogue-message-panel">
-      <template #header>
-        <span >
-          <p class="dialogue-message-panel-header-content">{{ props.author }}</p>
-          <i v-show="props.effect != 'nothing'" class="dialogue-message-panel-header-content dialogue-message-effect">{{ props.effect }}</i>
-        </span>
-      </template>
-      <template #icons>
-        <button class="p-panel-header-icon p-link mr-2" @click="toggleOptions">
-          <span class="pi pi-cog"></span>
-        </button>
-        <Menu id="config_menu" class="dialogue-message-options" ref="messageOptionsElement" :model="messageOptions" :popup="true"  />
-      </template>
-      <p>
-        {{ props.content }}
-      </p>
-    </Panel>
-  </div>
+  <Transition name="popup" appear>
+    <div class="dialogue-message" :class="props.position" ref="messageElement">
+      <Avatar class="dialogue-message-avatar" :class="props.position" size="large" shape="circle" />
+      <Panel class="dialogue-message-panel">
+        <template #header>
+          <span >
+            <p class="dialogue-message-panel-header-content">{{ props.author }}</p>
+            <i v-show="props.effect != 'nothing'" class="dialogue-message-panel-header-content dialogue-message-effect">{{ props.effect }}</i>
+          </span>
+        </template>
+        <template #icons>
+          <button class="p-panel-header-icon p-link mr-2" @click="toggleOptions">
+            <span class="pi pi-cog"></span>
+          </button>
+          <Menu id="config_menu" class="dialogue-message-options" ref="messageOptionsElement" :model="messageOptions" :popup="true"  />
+        </template>
+        <p>
+          {{ props.content }}
+        </p>
+      </Panel>
+    </div>
+  </Transition>
 </template>
 
 <style scoped>
@@ -140,4 +142,14 @@ function confirmDelete() {
 .dialogue-message-options {
 
 }
+
+/* ANIMATIONS */
+.popup-enter-active {
+  transition: all 0.3s ease-out;
+}
+.popup-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
 </style>

@@ -24,6 +24,10 @@ const dialogueMessages: Ref<MessageOptions[]> = ref([]);
 function createMessage(opts: MessageOptions) {
   dialogueMessages.value.push(opts)
 }
+function deleteMessage(opts: {index: number}) {
+  console.log("Message deleted", opts.index);
+  dialogueMessages.value.splice(opts.index, 1);
+}
 </script>
 
 <template>
@@ -38,6 +42,7 @@ function createMessage(opts: MessageOptions) {
           :author="dialogueMessages[index].author"
           :content="dialogueMessages[index].content"
           :effect="dialogueMessages[index].effect"
+          @delete-message="deleteMessage"
         />
       </div>
       <DialogueInput class="dialogue-input" @create-message="createMessage" />

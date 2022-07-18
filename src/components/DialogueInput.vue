@@ -45,7 +45,7 @@ function createMessage() {
           </span>
         </template>
       </Toolbar>
-      <Textarea class="dialogue-input-textarea" v-model="dialogueInput" :autoResize="true" rows="4" cols="80" @keyup.shift.enter="createMessage" />
+      <Textarea class="dialogue-input-textarea" v-model="dialogueInput" :autoResize="true" rows="4" cols="80" @keyup.enter="createMessage" />
     </div>
     <Button class="dialogue-input-submit p-button-rounded" @click="createMessage">Submit</Button>
   </div>
