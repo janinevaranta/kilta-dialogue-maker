@@ -11,7 +11,7 @@ const dialogueOptionsSelected = reactive({
 });
 
 const emit = defineEmits<{
-  (e: "createMessage", opts: {author: string, content: string, position: string, effect: string}): void
+  (e: "createMessage", opts: {author: string, content: string, position: string, effect: string, state: dialogueOptions.MessageStates}): void
 }>();
 
 function createMessage() {
@@ -20,6 +20,7 @@ function createMessage() {
     content: dialogueInput.value,
     position: `dialogue-pos-${dialogueOptionsSelected.position}`,
     effect: dialogueOptionsSelected.transition,
+    state: dialogueOptions.MessageStates.Normal,
   })
   dialogueInput.value = "";
 }
