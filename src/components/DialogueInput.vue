@@ -15,9 +15,13 @@ const emit = defineEmits<{
 }>();
 
 function createMessage() {
+  /**
+   * Emit the properties of the new message to the parent component
+   * and reset the initial value of the input back to empty.
+   */
   emit("createMessage", {
     author: dialogueOptionsSelected.author,
-    content: dialogueInput.value,
+    content: dialogueInput.value.trim(),
     position: `dialogue-pos-${dialogueOptionsSelected.position}`,
     effect: dialogueOptionsSelected.transition,
     state: dialogueOptions.MessageStates.Normal,
@@ -48,19 +52,15 @@ function createMessage() {
       </Toolbar>
       <Textarea class="dialogue-input-textarea" v-model="dialogueInput" :autoResize="true" rows="4" cols="80" @keyup.enter="createMessage" />
     </div>
-    <Button class="dialogue-input-submit p-button-rounded" @click="createMessage">Submit</Button>
+    <Button icon="pi pi-reply" class="dialogue-input-submit p-button-rounded p-button-text" @click="createMessage" />
   </div>
 </template>
 
 <style scoped>
 .dialogue-input-content {
   display: flex;
-  justify-content: center;
-  gap: 15px;
+  justify-content: flex-end;
   z-index: 1;
-}
-.dialogue-input-textarea {
-
 }
 .dialogue-input-avatar {
   margin-right: 15px;
@@ -68,6 +68,9 @@ function createMessage() {
 .dialogue-input-submit {
   height: 50%;
   align-self: center;
+  position: relative;
+  left: -40px;
+  top: 70px;
 }
 .dropdown-label {
   margin: 0;
