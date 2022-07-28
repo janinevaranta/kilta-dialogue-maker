@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, defineProps, defineEmits, onMounted, Ref } from "vue";
+import { ref, defineProps, defineEmits, onMounted, Ref } from "vue";
 import { useConfirm } from "primevue/useconfirm";
 import { MessageStates, dialogueCharacters, dialoguePositions, dialogueTransitionEffects } from "../data";
 
@@ -20,15 +20,23 @@ const emit = defineEmits<{
   (e: "stopEdit", index: number, newAuthor: string, newContent: string, newPosition: string, newEffect?: string): void,
 }>()
 
+// PrimeVue function that we can later use to 
+// display confirm window.
 const confirm = useConfirm();
 
+// Different options the message can have. 
+// They are references of the props as that makes them mutatable.
 const messageIndex = ref(props.index);
 const messageAuthor = ref(props.author);
 const messageContent = ref(props.content);
 const messagePosition = ref(props.position);
 const messageEffect = ref(props.effect);
 
+// Initialize the DOM element reference. This will later be assigned as the corresponding DOM
+// element once the component has mounted.
 const messageOptionsElement = ref<null | Ref>(null);
+
+// Options that the message can have.
 const messageOptions = ref([
   {
     label: "Options",
@@ -63,6 +71,8 @@ const messageOptions = ref([
 // been mounted.
 const messageElement = ref<null | HTMLDivElement>(null);
 
+// Once the DOM has been loaded, we can scroll the created message into the
+// view.
 onMounted(() => {
   if (messageElement.value != null) {
     messageElement.value.scrollIntoView({behavior: "smooth"});
@@ -70,9 +80,13 @@ onMounted(() => {
 });
 
 function toggleOptions(event: Event) {
+  /**
+   * Toggles the options list on and off.
+   */
   messageOptionsElement.value?.toggle(event);
 }
 
+// Confirmation window options.
 const confirmDelete = () => {
   confirm.require({
     message: "Are you sure you want to delete the entry?",
@@ -89,14 +103,25 @@ const confirmDelete = () => {
 };
 
 const startSwap = () => {
+  /**
+   * DEPRECATED
+   * TODO: Make something of use out of this.
+   */
   emit("swapStarted", { index: props.index });
 }
 const endSwap = () => {
+  /**
+   * DEPRECATED
+   * TODO: Make something of use out of this.
+   */
   emit("swapEnded", { index: props.index })
 }
 const stopEditing = () => {
-  console.log(messageIndex.value)
-  emit("stopEdit", messageIndex.value, messageAuthor.value, messageContent.value, messagePosition.value, messageEffect.value);
+  /**
+   * Emit the contents of the editted message to the main component.
+   * These will replace the messages previous content in the <MessageOptions> array.
+   */
+  emit("stopEdit", messageIndex.value, messageAuthor.value, messageContent.value.trim(), messagePosition.value, messageEffect.value);
 }
 
 </script>
@@ -104,12 +129,12 @@ const stopEditing = () => {
 <template>
   <Transition name="popup" appear>
     <div v-if="props.state == MessageStates.Normal" class="dialogue-message" :class="props.position" ref="messageElement">
-      <Avatar class="dialogue-message-avatar" :class="props.position" size="large" shape="circle" />
       <Panel class="dialogue-message-panel">
         <template #header>
-          <span>
-            <p class="dialogue-message-panel-header-content">{{ props.author }}</p>
-            <i v-show="props.effect != 'nothing'" class="dialogue-message-panel-header-content dialogue-message-effect">{{ props.effect }}</i>
+          <span class="dialogue-message-header">
+            <Avatar class="dialogue-message-avatar" :class="props.position" shape="circle" />
+            <p tabindex="0" class="dialogue-message-panel-header-content">{{ props.author }}</p>
+            <i tabindex="0" v-show="props.effect != 'nothing'" class="dialogue-message-panel-header-content dialogue-message-effect">{{ props.effect }}</i>
           </span>
         </template>
         <template #icons>
@@ -119,14 +144,13 @@ const stopEditing = () => {
           <Button v-else-if="props.state == MessageStates.IsSwapTarget" label="Swap" @click="endSwap" />
           <Menu id="config_menu" class="dialogue-message-options" ref="messageOptionsElement" :model="messageOptions" :popup="true"  />
         </template>
-        <p>
+        <p tabindex="0">
           {{ props.content }}
         </p>
       </Panel>
     </div>
     <div v-else-if="props.state == MessageStates.IsEditing" class="dialogue-message" :class="props.position">
       <Panel>
-        <Avatar class="dialogue-message-avatar" :class="props.position" size="large" shape="circle" />
         <template #header>
           <Dropdown v-model="messageAuthor" :options="dialogueCharacters" :placeholder="messageAuthor"></Dropdown>
           <Dropdown v-model="messagePosition" :options="dialoguePositions" :placeholder="messagePosition.split('-')[2]"></Dropdown>
@@ -156,7 +180,6 @@ const stopEditing = () => {
   margin-right: 50px;
 }
 .dialogue-message-avatar {
-  position: absolute;
   top: 0;
 }
 .dialogue-message-panel {
@@ -165,9 +188,14 @@ const stopEditing = () => {
   max-width: 630px;
   margin: 20px auto 20px auto;
 }
+.dialogue-message-header {
+
+}
 .dialogue-message-panel-header-content {
   display: inline-block;
-  margin-left: 10px;
+  position: relative;
+  left: 10px;
+  top: -8px;
 }
 .dialogue-message-effect {
   font-size: 0.8em;
@@ -183,9 +211,6 @@ const stopEditing = () => {
 }
 .dialogue-pos-right.dialogue-message-avatar {
   right: -50px;
-}
-.dialogue-message-options {
-
 }
 
 /* ANIMATIONS */
