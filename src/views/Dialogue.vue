@@ -21,6 +21,11 @@ interface MessageOptions {
   state: MessageStates,
 }
 
+interface SaveConfig {
+  version: number,
+  content: Array<MessageOptions>,
+}
+
 const dialogueMessages: Ref<MessageOptions[]> = ref([]);
 const currentMessageAction = ref(MessageStates.Normal);
 
@@ -64,7 +69,12 @@ function stopEditing(index: number, newAuthor: string, newContent: string, newPo
 }
 
 function saveFile() {
-  const blob = new Blob([JSON.stringify(dialogueMessages.value, null, 2)], {type: "application/json;charset=utf-8"});
+  const saveConfig: SaveConfig = {
+    version: 0.1,
+    content: dialogueMessages.value,
+  };
+
+  const blob = new Blob([JSON.stringify(saveConfig, null, 2)], {type: "application/json;charset=utf-8"});
   FileSaver.saveAs(blob, "dialogue.json");
 }
 
@@ -77,7 +87,12 @@ function openFile() {
       const data = json?.data;
       if (data) {
         const loadedMessages = JSON.parse(data);
-        dialogueMessages.value = loadedMessages;
+        try {
+          dialogueMessages.value = loadedMessages;
+        }
+        catch (e) {
+          console.log(e);
+        }
       }
     }
   });
@@ -108,7 +123,7 @@ function openFile() {
           @stop-edit="stopEditing"
         />
       </div>
-      <DialogueInput class="dialogue-input" @create-message="createMessage" />
+      <DialogueInput id="dialogue-input" @create-message="createMessage" />
     </div>
   </div>
 </template>
@@ -153,5 +168,11 @@ function openFile() {
 }
 #dialogue-content::-webkit-scrollbar {
   display: none;
+}
+#dialogue-input {
+  width: 70%;
+  max-width: 870px;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>
