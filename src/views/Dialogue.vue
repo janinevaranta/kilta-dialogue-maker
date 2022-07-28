@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import DynamicDialog from "primevue/dynamicdialog";
 import DialogueNavBar from "../components/DialogueNavBar.vue";
 import DialogueMessage from "../components/DialogueMessage.vue";
 import DialogueInput from "../components/DialogueInput.vue";
+import DialogueFileOpener from "../components/DialogueFileOpener.vue";
+
 import { MessageStates } from "../data";
+import FileSaver from "file-saver";
 
 import { ref } from "vue";
 import type { Ref } from "vue";
-
-enum DialoguePosition {
-  Left = "dialogue-pos-left",
-  Right = "dialogue-pos-right",
-}
+import { useDialog } from "primevue/usedialog";
 
 interface MessageOptions {
   index?: number,
@@ -22,8 +22,11 @@ interface MessageOptions {
 }
 
 const dialogueMessages: Ref<MessageOptions[]> = ref([]);
+const currentMessageAction = ref(MessageStates.Normal);
 
-const swapInitIndex = ref(0);
+const dialogueName = ref("new-dialogue");
+
+const dialog = useDialog();
 
 function createMessage(opts: MessageOptions) {
   dialogueMessages.value.push(opts);
@@ -32,41 +35,67 @@ function deleteMessage(opts: {index: number}) {
   dialogueMessages.value.splice(opts.index, 1);
 }
 function startEditing(index: number) {
-  dialogueMessages.value[index].state = MessageStates.IsEditing;
+  /**
+   * The user can only edit one message at a time
+   * and they have to finish any other action as well.
+   * This ensures that everything regarding messages works
+   * correctly.
+   */
+  if (currentMessageAction.value == MessageStates.Normal) {
+    currentMessageAction.value = MessageStates.IsEditing;
+    dialogueMessages.value[index].state = MessageStates.IsEditing;
+  }
 }
 function stopEditing(index: number, newAuthor: string, newContent: string, newPosition: string, newEffect?: string) {
+  /**
+   * Set the editted messages values to the new ones set by
+   * the user.
+   * Afterwards, reset the global action state and stop editing.
+   */
   dialogueMessages.value[index].author = newAuthor;
   dialogueMessages.value[index].content = newContent;
-  dialogueMessages.value[index].position = newPosition;
+  dialogueMessages.value[index].position = `dialogue-pos-${newPosition}`;
   dialogueMessages.value[index].effect = newEffect;
   dialogueMessages.value[index].state = MessageStates.Normal;
+
+  // Reset the global action state.
+  // Now the user can now start for example to edit another message.
+  currentMessageAction.value = MessageStates.Normal;
 }
-// function startSwap(index: number) {
-//   // Save the index of the caller to a variable for later use.
-//   swapInitIndex.value = index;
-//   // Set each message elements state to be swappable (except the one which initiated the swap).
-//   dialogueMessages.value.forEach((message: MessageOptions, i) => {
-//     index != i ? message.state = MessageStates.IsSwapTarget : MessageStates.IsSwapping;
-//   });
-// }
-// function endSwap(index: number) {
-//   const swapTarget = dialogueMessages.value[index];
-//   dialogueMessages.value[index] = dialogueMessages.value[swapInitIndex.value];
-//   dialogueMessages.value[swapInitIndex.value] = swapTarget;
-//   // Reset states and values.
-//   dialogueMessages.value.forEach((message: MessageOptions) => {
-//     message.state = MessageStates.Normal;
-//   });
-//   swapInitIndex.value = 0;
-// }
+
+function saveFile() {
+  const blob = new Blob([JSON.stringify(dialogueMessages.value, null, 2)], {type: "application/json;charset=utf-8"});
+  FileSaver.saveAs(blob, "dialogue.json");
+}
+
+function openFile() {
+  dialog.open(DialogueFileOpener, {
+    props: {
+      header: "Open a saved dialogue file"
+    },
+    onClose: (json) => {
+      const data = json?.data;
+      if (data) {
+        const loadedMessages = JSON.parse(data);
+        dialogueMessages.value = loadedMessages;
+      }
+    }
+  });
+}
 </script>
 
 <template>
+  <DynamicDialog></DynamicDialog>
   <div id="dialogue">
-    <DialogueNavBar />
+    <DialogueNavBar 
+      :dialogue-name="dialogueName"
+      @save-file="saveFile"
+      @open-file="openFile"
+    />
     <div id="dialogue-controls">
       <div id="dialogue-content">
         <DialogueMessage 
+          tabindex="0"
           v-for="(message, index) in dialogueMessages" 
           :index="index"
           :position="dialogueMessages[index].position" 
@@ -93,6 +122,17 @@ function stopEditing(index: number, newAuthor: string, newContent: string, newPo
   left: 0;
   right: 0;
   top: 0;
+  background: #ffffff;
+}
+#dialogue:before {
+  position: absolute;
+  content: "";
+  width: 100vw;
+  height: 100vh;
+  background-size: 2em 2em;
+  background-image: linear-gradient(rgba(145, 194, 234, 0.1) .1em, transparent .1em), linear-gradient(90deg, rgba(145, 194, 234, .1) .05em, transparent .05em);
+  -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
+  mask-image: radial-gradient(circle, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
 }
 #dialogue-controls {
   display: flex;

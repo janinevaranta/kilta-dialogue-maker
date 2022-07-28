@@ -1,8 +1,10 @@
 <script setup lang="ts">
 
+
 </script>
 
 <template>
+
   <ConfirmDialog></ConfirmDialog>
   <RouterView></RouterView>
 </template>
