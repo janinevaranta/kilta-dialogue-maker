@@ -4,7 +4,6 @@
 </script>
 
 <template>
-
   <ConfirmDialog></ConfirmDialog>
   <RouterView></RouterView>
 </template>

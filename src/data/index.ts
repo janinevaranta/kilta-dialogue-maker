@@ -1,9 +1,5 @@
 // All constant data that can be used in the options.
 
-const dialoguePositions = [
-  "left",
-  "right"
-];
 const dialogueCharacters = [
   "Guildmaster",
   "Emericus",
@@ -32,4 +28,14 @@ enum MessageStates {
   IsEditing,
 };
 
-export { dialoguePositions, dialogueCharacters, dialogueTransitionEffects, MessageStates }
+enum DialoguePositionClass {
+  Left = "dialogue-pos-left",
+  Right = "dialogue-pos-right",
+}
+
+const dialoguePositions = [
+  "left",
+  "right"
+];
+
+export { dialoguePositions, dialogueCharacters, dialogueTransitionEffects, MessageStates, DialoguePositionClass }
