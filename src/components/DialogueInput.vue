@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, reactive, watch, defineEmits } from "vue";
+import { useToast } from "primevue/usetoast";
 import * as dialogueOptions from "../data";
+
+const toast = useToast();
 
 const dialogueInput = ref("");
 
 const dialogueOptionsSelected = reactive({
-  position: "left",
+  position: "1",
   author: "",
   transition: "nothing",
 });
@@ -19,6 +22,13 @@ function createMessage() {
    * Emit the properties of the new message to the parent component
    * and reset the initial value of the input back to empty.
    */
+  if (dialogueOptionsSelected.author == "") {
+    toast.add({severity: "warn", summary: "Empty Author", detail: "Please select an author for the message.", life: 5000});
+    return;
+  } else if (dialogueInput.value.trim() == "") {
+    toast.add({severity: "warn", summary: "Empty Input", detail: "Message input cannot be empty.", life: 5000});
+    return;
+  }
   emit("createMessage", {
     author: dialogueOptionsSelected.author,
     content: dialogueInput.value.trim(),
@@ -36,15 +46,15 @@ function createMessage() {
       <Toolbar class="dialogue-input-toolbar">
         <template #start>
           <Avatar class="dialogue-input-avatar" size="large" shape="circle" />
-          <span>
+          <span class="dialogue-input-setting">
             <p class="dropdown-label">Character:</p>
             <Dropdown v-model="dialogueOptionsSelected.author" :options="dialogueOptions.dialogueCharacters" placeholder="Choose a character" />
           </span>
-          <span>
+          <span class="dialogue-input-setting">
             <p class="dropdown-label">Position:</p>
             <Dropdown v-model="dialogueOptionsSelected.position" :options="dialogueOptions.dialoguePositions" />
           </span>
-          <span>
+          <span class="dialogue-input-setting">
             <p class="dropdown-label">Effect:</p>
             <Dropdown v-model="dialogueOptionsSelected.transition" :options="dialogueOptions.dialogueTransitionEffects" />
           </span>
@@ -61,6 +71,9 @@ function createMessage() {
   display: flex;
   justify-content: flex-end;
   z-index: 1;
+}
+.dialogue-input-setting {
+  margin-right: 10px;
 }
 .dialogue-input-avatar {
   margin-right: 15px;

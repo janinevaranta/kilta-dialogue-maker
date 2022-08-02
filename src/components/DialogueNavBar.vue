@@ -11,7 +11,7 @@ const exportItems = ref([
     label: "Export Settings",
     icon: "pi pi-fw pi-cog",
     command: () => {
-      console.log("Export settings.")
+      emit("openExportSettings");
     }
   }
 ])
@@ -23,6 +23,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "saveFile"): void,
   (e: "openFile"): void,
+  (e: "openExportSettings"): void,
+  (e: "openDialogueSettings"): void,
 }>()
 </script>
 
@@ -38,7 +40,7 @@ const emit = defineEmits<{
         </span>
       </template>
       <template #end>
-        <Button label="Settings" icon="pi pi-fw pi-cog" class="p-button-raised p-button-text" />
+        <Button label="Settings" icon="pi pi-fw pi-cog" class="p-button-raised p-button-text" @click="emit('openDialogueSettings')"/>
       </template>
     </Toolbar>
   </nav>

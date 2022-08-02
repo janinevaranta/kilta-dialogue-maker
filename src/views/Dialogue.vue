@@ -1,16 +1,28 @@
 <script setup lang="ts">
 import DynamicDialog from "primevue/dynamicdialog";
+import Toast from "primevue/toast";
+
 import DialogueNavBar from "../components/DialogueNavBar.vue";
 import DialogueMessage from "../components/DialogueMessage.vue";
 import DialogueInput from "../components/DialogueInput.vue";
 import DialogueFileOpener from "../components/DialogueFileOpener.vue";
+import DialogueExportSettings from "../components/DialogueExportSettings.vue";
+import DialogueSettings from "../components/DialogueSettings.vue";
 
-import { MessageStates } from "../data";
+import { MessageStates, defaultDialogueSettings } from "../data";
 import FileSaver from "file-saver";
 
-import { ref } from "vue";
+import { ref, provide } from "vue";
 import type { Ref } from "vue";
 import { useDialog } from "primevue/usedialog";
+import { useToast } from "primevue/usetoast";
+
+interface DialogueSetting {
+  name: string,
+  description: string,
+  defaultValue: any,
+  currentValue: any,
+}
 
 interface MessageOptions {
   index?: number,
@@ -26,13 +38,38 @@ interface SaveConfig {
   content: Array<MessageOptions>,
 }
 
+const dialogueSettings: Ref<DialogueSetting[]> = ref([]);
+
+// Try to load the settings from the local storage, if they exists.
+// If not, load the default settings.
+const savedSettings = localStorage.getItem("dialogueSettings");
+if (savedSettings) {
+  dialogueSettings.value = JSON.parse(savedSettings);
+} else {
+  dialogueSettings.value = defaultDialogueSettings;
+  localStorage.setItem("dialogueSettings", JSON.stringify(dialogueSettings.value));
+}
+
+// Provide the settings globally for every child component.
+provide("dialogueSettings", dialogueSettings);
+
 const dialogueMessages: Ref<MessageOptions[]> = ref([]);
 const currentMessageAction = ref(MessageStates.Normal);
 
 const dialogueName = ref("new-dialogue");
 
 const dialog = useDialog();
+const toast = useToast();
 
+
+function changeSettings(newSettings: DialogueSetting[]) {
+  /**
+   * Change any setting values provided in the parameters.
+   * @param newSettings A new array of DialogueSetting objects to be applied.
+   */
+
+  dialogueSettings.value = newSettings;
+}
 function createMessage(opts: MessageOptions) {
   dialogueMessages.value.push(opts);
 }
@@ -69,16 +106,30 @@ function stopEditing(index: number, newAuthor: string, newContent: string, newPo
 }
 
 function saveFile() {
+  /**
+   * Save the current dialogueMessages object as a JSON.
+   * The user's browser should automatically start downloading
+   * the new json file.
+   */
+  // Define some additional info to be included in the json.
   const saveConfig: SaveConfig = {
     version: 0.1,
     content: dialogueMessages.value,
   };
 
+  // Create a blob object out of the JSON and save it.
   const blob = new Blob([JSON.stringify(saveConfig, null, 2)], {type: "application/json;charset=utf-8"});
   FileSaver.saveAs(blob, "dialogue.json");
-}
 
+  // Display a success message.
+  toast.add({severity: "success", summary: "File Saved", detail: "File has been saved and should start downloading soon.", life: 5000});
+}
 function openFile() {
+  /**
+   * Open a loaded file.
+   * The save file is first validated, after which 
+   * the savefile message content is assigned to the dialogueMessages object.
+   */
   dialog.open(DialogueFileOpener, {
     props: {
       header: "Open a saved dialogue file"
@@ -88,24 +139,43 @@ function openFile() {
       if (data) {
         const loadedMessages = JSON.parse(data);
         try {
-          dialogueMessages.value = loadedMessages;
+          dialogueMessages.value = loadedMessages.content;
+          toast.add({severity: "success", summary: "File Opened", detail: "File has been opened successfully.", life: 5000});
         }
         catch (e) {
           console.log(e);
+          toast.add({severity: "error", summary: "File Error", detail: "Something went wrong when opening the file.", life: 5000});
         }
       }
     }
   });
 }
+function openDialogueSettings() {
+  dialog.open(DialogueSettings, {
+    props: {
+      header: "Dialogue Settings",
+    }
+  })
+}
+function openExportSettings() {
+  dialog.open(DialogueExportSettings, {
+    props: {
+      header: "Export Settings",
+    }
+  })
+}
 </script>
 
 <template>
+  <Toast></Toast>
   <DynamicDialog></DynamicDialog>
   <div id="dialogue">
     <DialogueNavBar 
       :dialogue-name="dialogueName"
       @save-file="saveFile"
       @open-file="openFile"
+      @open-dialogue-settings="openDialogueSettings"
+      @open-export-settings="openExportSettings"
     />
     <div id="dialogue-controls">
       <div id="dialogue-content">
