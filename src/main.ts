@@ -3,6 +3,7 @@ import router from "./router";
 import App from './App.vue'
 import ConfirmationService from "primevue/confirmationservice";
 import DialogService from "primevue/dialogservice";
+import ToastService from "primevue/toastservice";
 
 import PrimeVue from "primevue/config";
 import Toolbar from "primevue/toolbar";
@@ -17,6 +18,7 @@ import Menu from "primevue/menu";
 import ConfirmDialog from "primevue/confirmdialog";
 import SplitButton from "primevue/SplitButton";
 import FileUpload from "primevue/fileupload";
+import Chips from "primevue/chips";
 
 import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/primevue.min.css";
@@ -28,6 +30,7 @@ app.use(router);
 app.use(PrimeVue);
 app.use(ConfirmationService);
 app.use(DialogService);
+app.use(ToastService);
 
 app.component("Toolbar", Toolbar);
 app.component("Button", Button);
@@ -41,5 +44,6 @@ app.component("Menu", Menu);
 app.component("ConfirmDialog", ConfirmDialog);
 app.component("SplitButton", SplitButton);
 app.component("FileUpload", FileUpload);
+app.component("Chips", Chips);
 
 app.mount('#app');

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, onMounted, Ref } from "vue";
 import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
 import { MessageStates, dialogueCharacters, dialoguePositions, dialogueTransitionEffects } from "../data";
 
 const props = defineProps<{
@@ -20,9 +21,10 @@ const emit = defineEmits<{
   (e: "stopEdit", index: number, newAuthor: string, newContent: string, newPosition: string, newEffect?: string): void,
 }>()
 
-// PrimeVue function that we can later use to 
-// display confirm window.
+// PrimeVue functions that we can later use to 
+// display confirm window or a toast message.
 const confirm = useConfirm();
+const toast = useToast();
 
 // Different options the message can have. 
 // They are references of the props as that makes them mutatable.
@@ -121,6 +123,13 @@ const stopEditing = () => {
    * Emit the contents of the editted message to the main component.
    * These will replace the messages previous content in the <MessageOptions> array.
    */
+  if (messageAuthor.value == "") {
+    toast.add({severity: "warn", summary: "Empty Author", detail: "Please select an author for the message.", life: 5000});
+    return;
+  } else if (messageContent.value.trim() == "") {
+    toast.add({severity: "warn", summary: "Empty Input", detail: "Message input cannot be empty.", life: 5000});
+    return;
+  }
   emit("stopEdit", messageIndex.value, messageAuthor.value, messageContent.value.trim(), messagePosition.value, messageEffect.value);
 }
 
@@ -132,7 +141,7 @@ const stopEditing = () => {
       <Panel class="dialogue-message-panel">
         <template #header>
           <span class="dialogue-message-header">
-            <Avatar class="dialogue-message-avatar" :class="props.position" shape="circle" />
+            <Avatar class="dialogue-message-avatar" :class="`position-${props.position}`" shape="circle" />
             <p tabindex="0" class="dialogue-message-panel-header-content">{{ props.author }}</p>
             <i tabindex="0" v-show="props.effect != 'nothing'" class="dialogue-message-panel-header-content dialogue-message-effect">{{ props.effect }}</i>
           </span>
@@ -173,11 +182,11 @@ const stopEditing = () => {
   margin-left: auto;
   margin-right: auto;
 }
-.dialogue-pos-left.dialogue-message{
-  margin-left: 50px;
+.dialogue-pos-1.dialogue-message{
+  margin-left: 30px;
 }
-.dialogue-pos-right.dialogue-message {
-  margin-right: 50px;
+.dialogue-pos-2.dialogue-message {
+  margin-right: 30px;
 }
 .dialogue-message-avatar {
   top: 0;
@@ -206,10 +215,10 @@ const stopEditing = () => {
   text-align: left;
   overflow-wrap: break-word;
 }
-.dialogue-pos-left.dialogue-message-avatar {
+.dialogue-pos-1.dialogue-message-avatar {
   left: -50px;
 }
-.dialogue-pos-right.dialogue-message-avatar {
+.dialogue-pos-2.dialogue-message-avatar {
   right: -50px;
 }
 
