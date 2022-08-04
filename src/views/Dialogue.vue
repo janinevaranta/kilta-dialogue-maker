@@ -24,6 +24,12 @@ interface DialogueSetting {
   currentValue: any,
 }
 
+interface DialogueSettings {
+  characters: DialogueSetting,
+  positions: DialogueSetting,
+  effects: DialogueSetting
+}
+
 interface MessageOptions {
   index?: number,
   author: string,
@@ -38,7 +44,7 @@ interface SaveConfig {
   content: Array<MessageOptions>,
 }
 
-const dialogueSettings: Ref<DialogueSetting[]> = ref([]);
+const dialogueSettings: Ref<DialogueSettings> = ref(defaultDialogueSettings);
 
 // Try to load the settings from the local storage, if they exists.
 // If not, load the default settings.
@@ -52,6 +58,7 @@ if (savedSettings) {
 
 // Provide the settings globally for every child component.
 provide("dialogueSettings", dialogueSettings);
+console.log(dialogueSettings.value);
 
 const dialogueMessages: Ref<MessageOptions[]> = ref([]);
 const currentMessageAction = ref(MessageStates.Normal);
@@ -62,14 +69,7 @@ const dialog = useDialog();
 const toast = useToast();
 
 
-function changeSettings(newSettings: DialogueSetting[]) {
-  /**
-   * Change any setting values provided in the parameters.
-   * @param newSettings A new array of DialogueSetting objects to be applied.
-   */
-
-  dialogueSettings.value = newSettings;
-}
+// Application State Functions //
 function createMessage(opts: MessageOptions) {
   dialogueMessages.value.push(opts);
 }
@@ -154,6 +154,11 @@ function openDialogueSettings() {
   dialog.open(DialogueSettings, {
     props: {
       header: "Dialogue Settings",
+    },
+    onClose(options) {
+      if (options) {
+        saveSettings(options);
+      }
     }
   })
 }
@@ -164,11 +169,29 @@ function openExportSettings() {
     }
   })
 }
+function saveSettings(newValues: any) {
+  /**
+   * Save the new settings.
+   * Set the new settings as the new value for dialogueSettings variable
+   * and save them to the local storage after stringifying.
+   * @param newValues DialogueSetting[] Array of DialogueSetting objects.
+   */
+  console.log(newValues.data)
+  if (newValues) {
+    dialogueSettings.value.characters.currentValue = newValues.data.characters;
+    dialogueSettings.value.positions.currentValue = newValues.data.positions;
+    dialogueSettings.value.effects.currentValue= newValues.data.effects;
+
+    localStorage.setItem("dialogueSettings", JSON.stringify(dialogueSettings.value));
+    console.log(dialogueSettings.value);
+    toast.add({severity: "success", summary: "Settings Saved", detail: "Settings have been saved successfully.", life: 5000})
+  }
+}
 </script>
 
 <template>
   <Toast></Toast>
-  <DynamicDialog></DynamicDialog>
+  <DynamicDialog @save-settings="saveSettings"></DynamicDialog>
   <div id="dialogue">
     <DialogueNavBar 
       :dialogue-name="dialogueName"

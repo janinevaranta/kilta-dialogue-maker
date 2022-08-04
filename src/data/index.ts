@@ -49,24 +49,26 @@ const dialoguePositions = [
   "6",
 ];
 
-const defaultDialogueSettings = [{
-  name: "Characters",
-  description: "List of characters that can appear in the dialogues.",
-  defaultValue: dialogueCharacters,
-  currentValue: dialogueCharacters,
-},
-{
-  name: "Positions",
-  description: "List of positions that can be set for each character.",
-  defaultValue: dialoguePositions,
-  currentValue: dialoguePositions,
-},
-{
-  name: "Effects",
-  description: "List of effects that can be set for each message.",
-  defaultValue: dialogueTransitionEffects,
-  currentValue: dialogueTransitionEffects,
-}];
+const defaultDialogueSettings = {
+  characters: {
+    name: "Characters",
+    description: "List of characters that can appear in the dialogues.",
+    defaultValue: dialogueCharacters,
+    currentValue: dialogueCharacters,
+  },
+  positions: {
+    name: "Positions",
+    description: "List of positions that can be set for each character.",
+    defaultValue: dialoguePositions,
+    currentValue: dialoguePositions,
+  },
+  effects: {
+    name: "Effects",
+    description: "List of effects that can be set for each message.",
+    defaultValue: dialogueTransitionEffects,
+    currentValue: dialogueTransitionEffects,
+  }
+};
 
 export { 
   dialoguePositions,
